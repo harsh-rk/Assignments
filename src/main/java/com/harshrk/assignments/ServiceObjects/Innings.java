@@ -1,8 +1,11 @@
 package com.harshrk.assignments.ServiceObjects;
 
+import com.harshrk.assignments.MatchObjects.Partnership;
+import com.harshrk.assignments.MatchObjects.Player;
 import com.harshrk.assignments.MatchObjects.Team;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,49 +13,114 @@ import java.util.List;
 import static com.harshrk.assignments.Constants.MatchConstants.*;
 
 @Getter
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class Innings {
 
+    @NonNull private Team battingTeam;
+    @NonNull private Team bowlingTeam;
+    @NonNull private int inningsTarget;
+    private Player batsmanStriker;
+    private Player batsmanNonStriker;
+    private List<Partnership> partnerships;
+    private Partnership currentPartnership;
     private List<Over> overs;
-    private int target = Integer.MAX_VALUE;
-    private int score = 0;
+    private int inningsScore = 0;
     private int wickets = 0;
     private double oversPlayed = 0;
+    private double runRate;
 
-    public Innings(int target) {
-        this.target = target;
-    }
-
-    public void simulateInnings(Team team) {
+    public void simulateInnings() {
         overs = new ArrayList<Over>();
-        for(int currentPlayer = 0, currentOver = 0; currentOver< NUMBER_OF_OVERS_IN_ODI; currentOver++) {
+        partnerships = new ArrayList<Partnership>();
+        int overResult;
 
-            Over over = new Over();
-            currentPlayer = over.simulateOver(team, currentPlayer, target-score);
-            score += over.getScore();
+        batsmanStriker = battingTeam.getBatsman(0);
+        batsmanNonStriker = battingTeam.getBatsman(1);
+        currentPartnership = new Partnership(batsmanStriker, batsmanNonStriker);
+
+        int bowlerNumber = bowlingTeam.getNextBowlerNumber(NUMBER_OF_ALLROUNDERS_IN_TEAM +
+            NUMBER_OF_BOWLERS_IN_TEAM);
+        Player bowler = bowlingTeam.getBowler(bowlerNumber);
+
+        for(int currentOver = 0; currentOver < NUMBER_OF_OVERS_IN_ODI; currentOver++) {
+
+            Over over = new Over(battingTeam, batsmanStriker, batsmanNonStriker, bowler, currentPartnership);
+            overResult = over.simulateOver(inningsTarget-inningsScore);
+            incrementInningsScore(over.getOverScore());
+            incrementWickets(over.getOverWickets());
+            partnerships.addAll(over.getEndedPartnerships());
             overs.add(over);
 
-            if(currentPlayer<0) {
-                wickets = 10;
-                computeOversPlayed(currentOver, over);
-                return;
-            }
-            else if(score >= target) {
-                wickets = currentPlayer;
-                computeOversPlayed(currentOver, over);
-                return;
+            if(overResult == ALL_OUT || overResult == TARGET_REACHED) {
+                double overLength = computeOverLength(over);
+                incrementOversPlayed(overLength);
+                bowler.incrementOversBowled(overLength);
+                break;
             }
 
-            if(currentOver == NUMBER_OF_OVERS_IN_ODI -1) {
-                wickets = currentPlayer;
+            incrementOversPlayed(1);
+
+            batsmanStriker = over.getBatsmanStriker();
+            batsmanNonStriker = over.getBatsmanNonStriker();
+            rotateStrike();
+            currentPartnership = over.getCurrentPartnership();
+
+            bowler.incrementOversBowled(1);
+            if(over.getOverScore() == 0) bowler.incrementMaidenOvers();
+            bowlerNumber = bowlingTeam.getNextBowlerNumber(bowlerNumber);
+            bowler = bowlingTeam.getBowler(bowlerNumber);
+
+            if(currentOver == NUMBER_OF_OVERS_IN_ODI-1) {
                 oversPlayed = NUMBER_OF_OVERS_IN_ODI;
+                partnerships.add(currentPartnership);
+            }
+        }
+
+        computeRunRate();
+        batsmanStriker.computeStrikeRate();
+        batsmanNonStriker.computeStrikeRate();
+        computeEconomy();
+
+        for(Player player : battingTeam.getPlayers()) {
+            for (Partnership partnership : partnerships) {
+                partnership.setNotOut(player);
             }
         }
     }
 
-    private void computeOversPlayed(int currentOver, Over finalOver) {
-        oversPlayed = currentOver;
-        if (finalOver.getBallsBowled() == NUMBER_OF_BALLS_IN_OVER) oversPlayed = oversPlayed + 1;
-        else oversPlayed = oversPlayed + ((double)finalOver.getBallsBowled())/10;
+    private void rotateStrike() {
+        Player newStriker = batsmanNonStriker;
+        Player newNonStriker = batsmanStriker;
+        batsmanStriker = newStriker;
+        batsmanNonStriker = newNonStriker;
+    }
+
+    private void incrementInningsScore(int overScore) {
+        inningsScore += overScore;
+    }
+
+    private void incrementWickets(int overWickets) {
+        wickets += overWickets;
+    }
+
+    private void incrementOversPlayed(double overLength) {
+        oversPlayed += overLength;
+    }
+
+    private double computeOverLength(Over currentOVer) {
+        if (currentOVer.getBallsBowled() == NUMBER_OF_BALLS_IN_OVER) return 1;
+        else return ((double)currentOVer.getBallsBowled())/10;
+    }
+
+    private void computeEconomy() {
+        List<Player> players = bowlingTeam.getPlayers();
+        for(int i=NUMBER_OF_BATSMEN_IN_TEAM; i<NUMBER_OF_PLAYERS_IN_TEAM; i++) {
+            players.get(i).computeEconomy();
+        }
+    }
+
+    private void computeRunRate() {
+        if(oversPlayed == 0) runRate = 0;
+        else runRate = ((double)inningsScore)/oversPlayed;
     }
 }
