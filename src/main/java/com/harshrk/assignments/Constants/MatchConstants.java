@@ -20,4 +20,22 @@ public class MatchConstants {
     public static final char NO_BALL = 'n';
     public static final char BYE = 'b';
     public static final char LEG_BYE = 'l';
+
+    public static double BATTING_STRIKERATE_VARIANCE = 30.0;
+    public static double BALLS_PER_INNINGS_VARIANCE = 50.0;
+    public static double BOWLING_ECONOMY_VARIANCE = 1.0;
+    public static double BOWLING_STRIKERATE_VARIANCE = 20;
+
+    public static double BATSMAN_BATTING_STRIKERATE = 95.0;
+    public static double BATSMAN_BALLS_PLAYED = 140.0;
+    public static double BATSMAN_ECONOMY = 5.5;
+    public static double BATSMAN_BOWLING_STRIKERATE = 70.0;
+    public static double ALLROUNDER_BATTING_STRIKERATE = 70.0;
+    public static double ALLROUNDER_BALLS_PLAYED = 95;
+    public static double ALLROUNDER_ECONOMY = 4.5;
+    public static double ALLROUNDER_BOWLING_STRIKERATE = 55.0;
+    public static double BOWLER_BATTING_STRIKERATE = 45.0;
+    public static double BOWLER_BALLS_PLAYED = 50.0;
+    public static double BOWLER_ECONOMY = 3.5;
+    public static double BOWLER_BOWLING_STRIKERATE = 40.0;
 }

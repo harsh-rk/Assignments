@@ -49,7 +49,8 @@ public class Team {
 
     public int getNextBowlerNumber(int currentBowlerNumber) {
         while(true) {
-            int nextBowlerNumber = (int) (Math.random() * (NUMBER_OF_ALLROUNDERS_IN_TEAM + NUMBER_OF_BOWLERS_IN_TEAM));
+            int nextBowlerNumber = (int) (Math.random() * (NUMBER_OF_ALLROUNDERS_IN_TEAM + NUMBER_OF_BOWLERS_IN_TEAM))
+                + NUMBER_OF_BATSMEN_IN_TEAM;
             if (nextBowlerNumber == currentBowlerNumber) continue;
             else if (Math.round(players.get(nextBowlerNumber).getOversBowled()) == NUMBER_OF_OVERS_PER_BOWLER) continue;
             else return nextBowlerNumber;
@@ -57,6 +58,6 @@ public class Team {
     }
 
     public Player getBowler(int bowlerNumber) {
-        return players.get(NUMBER_OF_BATSMEN_IN_TEAM + bowlerNumber);
+        return players.get(bowlerNumber);
     }
 }

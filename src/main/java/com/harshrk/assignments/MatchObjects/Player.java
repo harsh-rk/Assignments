@@ -6,6 +6,12 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.Random;
+
+import static com.harshrk.assignments.Constants.MatchConstants.BALLS_PER_INNINGS_VARIANCE;
+import static com.harshrk.assignments.Constants.MatchConstants.BATTING_STRIKERATE_VARIANCE;
+import static com.harshrk.assignments.Constants.MatchConstants.BOWLING_ECONOMY_VARIANCE;
+import static com.harshrk.assignments.Constants.MatchConstants.BOWLING_STRIKERATE_VARIANCE;
 import static com.harshrk.assignments.Constants.MatchConstants.PLAYER_OUT;
 
 @Getter
@@ -13,9 +19,11 @@ import static com.harshrk.assignments.Constants.MatchConstants.PLAYER_OUT;
 public class Player {
 
     private static int INSTANCES=0;
+    private static Random random = new Random();
 
     @NonNull private String playerName;
     @NonNull PlayerType type;
+
     @Setter(AccessLevel.PACKAGE) private boolean isNotOut = false;
     private int runsScored;
     private int ballsPlayed;
@@ -44,14 +52,14 @@ public class Player {
     public static int play(Player batsman, Player bowler) {
         batsman.incrementBallsPlayed();
 
-        if(bowler.takeWicket()) {
+        if(bowler.takeWicket(batsman, 0.05, 0.95)) {
             bowler.incrementWickets();
             batsman.computeStrikeRate();
             batsman.isNotOut = false;
             return PLAYER_OUT;
         }
         else {
-            int runs = batsman.getRuns();
+            int runs = batsman.getRuns(bowler, 6.0/95, 5.5*3.5);
             if(runs == 4) batsman.incrementFours();
             else if(runs == 6) batsman.incrementSixes();
 
@@ -104,16 +112,23 @@ public class Player {
         wicketsTaken++;
     }
 
-    private int getRuns() {
-        double runRandomVariable = Math.random()*100;
-        for(int i=type.getPrefixPercentage().size()-1; i>=0; i--) {
-            if(runRandomVariable > type.getPrefixPercentage().get(i)) return (i+1);
-        }
-        return 0;
+    private int getRuns(Player bowler, double alpha, double beta) {
+        double battingStrikerate = Math.max(0, type.getBattingStrikerate() +
+            random.nextGaussian()*BATTING_STRIKERATE_VARIANCE);
+        double bowlingEconomy = Math.max(0, bowler.type.getBowlingEconomy() +
+            random.nextGaussian()*BOWLING_ECONOMY_VARIANCE);
+        double runEstimate = alpha*battingStrikerate - beta/bowlingEconomy;
+        int runs = Math.min(6, Math.max(0, (int)Math.round(runEstimate)));
+        return runs;
     }
 
-    private boolean takeWicket() {
-        double wicketRandomVariable = Math.random()*100;
-        return (wicketRandomVariable < type.getWicketPercentage());
+    private boolean takeWicket(Player batsman, double gamma, double delta) {
+        double ballsPlayedPerInnings = Math.max(0, batsman.type.getBallsPlayedPerInnings() +
+            random.nextGaussian()*BALLS_PER_INNINGS_VARIANCE);
+        double bowlingStrikerate = Math.max(0, type.getBowlingStrikerate() +
+            random.nextGaussian()*BOWLING_STRIKERATE_VARIANCE);
+        double ballsPerWicket = gamma*ballsPlayedPerInnings + delta*bowlingStrikerate;
+        double wicketRandomVariable = Math.random()*ballsPerWicket;
+        return (wicketRandomVariable < 1);
     }
 }
