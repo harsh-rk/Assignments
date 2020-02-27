@@ -1,10 +1,10 @@
-package com.harshrk.assignments.MatchObjects;
+package com.harshrk.assignments.Beans;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
+@Builder
 public class BattingScorecard {
 
     private String playerType;

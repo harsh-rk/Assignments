@@ -1,5 +1,6 @@
-package com.harshrk.assignments.MatchObjects;
+package com.harshrk.assignments.Beans;
 
+import com.harshrk.assignments.Constants.MatchConstants;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -7,12 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.Random;
-
-import static com.harshrk.assignments.Constants.MatchConstants.BALLS_PER_INNINGS_VARIANCE;
-import static com.harshrk.assignments.Constants.MatchConstants.BATTING_STRIKERATE_VARIANCE;
-import static com.harshrk.assignments.Constants.MatchConstants.BOWLING_ECONOMY_VARIANCE;
-import static com.harshrk.assignments.Constants.MatchConstants.BOWLING_STRIKERATE_VARIANCE;
-import static com.harshrk.assignments.Constants.MatchConstants.PLAYER_OUT;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)   //Static factory used to count number of instances
@@ -56,7 +51,7 @@ public class Player {
             bowler.incrementWickets();
             batsman.computeStrikeRate();
             batsman.isNotOut = false;
-            return PLAYER_OUT;
+            return MatchConstants.PLAYER_OUT;
         }
         else {
             int runs = batsman.getRuns(bowler, 6.0/95, 5.5*3.5);
@@ -114,9 +109,9 @@ public class Player {
 
     private int getRuns(Player bowler, double alpha, double beta) {
         double battingStrikerate = Math.max(0, type.getBattingStrikerate() +
-            random.nextGaussian()*BATTING_STRIKERATE_VARIANCE);
+            random.nextGaussian()*MatchConstants.BATTING_STRIKERATE_VARIANCE);
         double bowlingEconomy = Math.max(0, bowler.type.getBowlingEconomy() +
-            random.nextGaussian()*BOWLING_ECONOMY_VARIANCE);
+            random.nextGaussian()*MatchConstants.BOWLING_ECONOMY_VARIANCE);
         double runEstimate = alpha*battingStrikerate - beta/bowlingEconomy;
         int runs = Math.min(6, Math.max(0, (int)Math.round(runEstimate)));
         return runs;
@@ -124,9 +119,9 @@ public class Player {
 
     private boolean takeWicket(Player batsman, double gamma, double delta) {
         double ballsPlayedPerInnings = Math.max(0, batsman.type.getBallsPlayedPerInnings() +
-            random.nextGaussian()*BALLS_PER_INNINGS_VARIANCE);
+            random.nextGaussian()*MatchConstants.BALLS_PER_INNINGS_VARIANCE);
         double bowlingStrikerate = Math.max(0, type.getBowlingStrikerate() +
-            random.nextGaussian()*BOWLING_STRIKERATE_VARIANCE);
+            random.nextGaussian()*MatchConstants.BOWLING_STRIKERATE_VARIANCE);
         double ballsPerWicket = gamma*ballsPlayedPerInnings + delta*bowlingStrikerate;
         double wicketRandomVariable = Math.random()*ballsPerWicket;
         return (wicketRandomVariable < 1);

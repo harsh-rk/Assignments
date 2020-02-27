@@ -1,18 +1,13 @@
-package com.harshrk.assignments.ServiceObjects;
+package com.harshrk.assignments.Services;
 
-import com.harshrk.assignments.MatchObjects.Partnership;
-import com.harshrk.assignments.MatchObjects.Player;
-import com.harshrk.assignments.MatchObjects.Team;
+import com.harshrk.assignments.Beans.Partnership;
+import com.harshrk.assignments.Beans.Player;
+import com.harshrk.assignments.Beans.Team;
+import com.harshrk.assignments.Constants.MatchConstants;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.harshrk.assignments.Constants.MatchConstants.ALL_OUT;
-import static com.harshrk.assignments.Constants.MatchConstants.NUMBER_OF_BALLS_IN_OVER;
-import static com.harshrk.assignments.Constants.MatchConstants.PLAYER_OUT;
-import static com.harshrk.assignments.Constants.MatchConstants.TARGET_REACHED;
-import static com.harshrk.assignments.Constants.MatchConstants.WICKET;
 
 @Getter
 public class Over {
@@ -40,18 +35,18 @@ public class Over {
     }
 
     public int simulateOver(int overTarget) {
-        for(int currentBall=0; currentBall<NUMBER_OF_BALLS_IN_OVER; currentBall++) {
+        for(int currentBall=0; currentBall< MatchConstants.NUMBER_OF_BALLS_IN_OVER; currentBall++) {
             incrementBallsBowled();
             currentPartnership.incrementBallsPlayed(batsmanStriker);
             int runs = Player.play(batsmanStriker, bowler);
 
-            if(runs == PLAYER_OUT) {
+            if(runs == MatchConstants.PLAYER_OUT) {
                 incrementOverWickets();
-                deliveries.add(WICKET);
+                deliveries.add(MatchConstants.WICKET);
                 endedPartnerships.add(currentPartnership);
 
                 int batsmanNumber = battingTeam.getNextBatsmanNumber();
-                if(batsmanNumber == ALL_OUT) return ALL_OUT;
+                if(batsmanNumber == MatchConstants.ALL_OUT) return MatchConstants.ALL_OUT;
                 else {
                     batsmanStriker = battingTeam.getBatsman(batsmanNumber);
                     currentPartnership = new Partnership(batsmanNonStriker, batsmanStriker);
@@ -65,7 +60,7 @@ public class Over {
             if((runs&1)==1) rotateStrike();
             if(overScore >= overTarget) {
                 endedPartnerships.add(currentPartnership);
-                return TARGET_REACHED;
+                return MatchConstants.TARGET_REACHED;
             }
         }
         return 0;

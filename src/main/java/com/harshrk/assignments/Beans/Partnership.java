@@ -1,4 +1,4 @@
-package com.harshrk.assignments.MatchObjects;
+package com.harshrk.assignments.Beans;
 
 import lombok.Getter;
 import lombok.NonNull;

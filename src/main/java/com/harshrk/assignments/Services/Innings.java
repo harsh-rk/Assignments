@@ -1,16 +1,15 @@
-package com.harshrk.assignments.ServiceObjects;
+package com.harshrk.assignments.Services;
 
-import com.harshrk.assignments.MatchObjects.Partnership;
-import com.harshrk.assignments.MatchObjects.Player;
-import com.harshrk.assignments.MatchObjects.Team;
+import com.harshrk.assignments.Beans.Partnership;
+import com.harshrk.assignments.Beans.Player;
+import com.harshrk.assignments.Beans.Team;
+import com.harshrk.assignments.Constants.MatchConstants;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.harshrk.assignments.Constants.MatchConstants.*;
 
 @Getter
 @RequiredArgsConstructor
@@ -38,11 +37,11 @@ public class Innings {
         batsmanNonStriker = battingTeam.getBatsman(1);
         currentPartnership = new Partnership(batsmanStriker, batsmanNonStriker);
 
-        int bowlerNumber = bowlingTeam.getNextBowlerNumber(NUMBER_OF_ALLROUNDERS_IN_TEAM +
-            NUMBER_OF_BOWLERS_IN_TEAM);
+        int bowlerNumber = bowlingTeam.getNextBowlerNumber(MatchConstants.NUMBER_OF_ALLROUNDERS_IN_TEAM +
+            MatchConstants.NUMBER_OF_BOWLERS_IN_TEAM);
         Player bowler = bowlingTeam.getBowler(bowlerNumber);
 
-        for(int currentOver = 0; currentOver < NUMBER_OF_OVERS_IN_ODI; currentOver++) {
+        for(int currentOver = 0; currentOver < MatchConstants.NUMBER_OF_OVERS_IN_ODI; currentOver++) {
 
             Over over = new Over(battingTeam, batsmanStriker, batsmanNonStriker, bowler, currentPartnership);
             overResult = over.simulateOver(inningsTarget-inningsScore);
@@ -51,7 +50,7 @@ public class Innings {
             partnerships.addAll(over.getEndedPartnerships());
             overs.add(over);
 
-            if(overResult == ALL_OUT || overResult == TARGET_REACHED) {
+            if(overResult == MatchConstants.ALL_OUT || overResult == MatchConstants.TARGET_REACHED) {
                 double overLength = computeOverLength(over);
                 incrementOversPlayed(overLength);
                 bowler.incrementOversBowled(overLength);
@@ -70,8 +69,8 @@ public class Innings {
             bowlerNumber = bowlingTeam.getNextBowlerNumber(bowlerNumber);
             bowler = bowlingTeam.getBowler(bowlerNumber);
 
-            if(currentOver == NUMBER_OF_OVERS_IN_ODI-1) {
-                oversPlayed = NUMBER_OF_OVERS_IN_ODI;
+            if(currentOver == MatchConstants.NUMBER_OF_OVERS_IN_ODI-1) {
+                oversPlayed = MatchConstants.NUMBER_OF_OVERS_IN_ODI;
                 partnerships.add(currentPartnership);
             }
         }
@@ -108,13 +107,13 @@ public class Innings {
     }
 
     private double computeOverLength(Over currentOVer) {
-        if (currentOVer.getBallsBowled() == NUMBER_OF_BALLS_IN_OVER) return 1;
+        if (currentOVer.getBallsBowled() == MatchConstants.NUMBER_OF_BALLS_IN_OVER) return 1;
         else return ((double)currentOVer.getBallsBowled())/10;
     }
 
     private void computeEconomy() {
         List<Player> players = bowlingTeam.getPlayers();
-        for(int i=NUMBER_OF_BATSMEN_IN_TEAM; i<NUMBER_OF_PLAYERS_IN_TEAM; i++) {
+        for(int i=MatchConstants.NUMBER_OF_BATSMEN_IN_TEAM; i<MatchConstants.NUMBER_OF_PLAYERS_IN_TEAM; i++) {
             players.get(i).computeEconomy();
         }
     }

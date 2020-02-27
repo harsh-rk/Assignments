@@ -1,14 +1,14 @@
-package com.harshrk.assignments.MatchObjects;
+package com.harshrk.assignments.Beans;
 
-import lombok.AllArgsConstructor;
+import com.harshrk.assignments.Constants.MatchConstants;
+import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.List;
 
-import static com.harshrk.assignments.Constants.MatchConstants.WICKET;
-
 @Getter
-@AllArgsConstructor
+@Builder
 public class OverScorecard {
 
     private String bowler;
@@ -18,13 +18,17 @@ public class OverScorecard {
     private int overWickets = 0;
     private List<Character> deliveries;
 
+    public List<Character> getDeliveries() {
+        return Collections.unmodifiableList(deliveries);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Over:");
         for(Character c : deliveries) {
             sb.append(" ");
             switch(c) {
-                case WICKET:
+                case MatchConstants.WICKET:
                     sb.append("W");
                     break;
                 default:
